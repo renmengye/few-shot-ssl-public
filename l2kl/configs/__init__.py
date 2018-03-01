@@ -1,0 +1,1 @@
+from config_factory import get_config
