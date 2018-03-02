@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 # =============================================================================
-from l2kl.configs.config_factory import RegisterConfig
+from fewshot.configs.config_factory import RegisterConfig
 
 
 @RegisterConfig("omniglot", "basic")

@@ -25,8 +25,8 @@ from __future__ import (absolute_import, division, print_function,
 import numpy as np
 import tensorflow as tf
 
-from l2kl.utils import logger
-from l2kl.utils.debug import debug_identity
+from fewshot.utils import logger
+from fewshot.utils.debug import debug_identity
 
 log = logger.get()
 

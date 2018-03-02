@@ -34,11 +34,11 @@ import tensorflow as tf
 
 from tqdm import tqdm
 
-from l2kl.data.data_factory import RegisterDataset
-from l2kl.data.episode import Episode
-from l2kl.data.refinement_dataset import RefinementMetaDataset
-from l2kl.data.compress_tiered_imagenet import decompress
-from l2kl.utils import logger
+from fewshot.data.data_factory import RegisterDataset
+from fewshot.data.episode import Episode
+from fewshot.data.refinement_dataset import RefinementMetaDataset
+from fewshot.data.compress_tiered_imagenet import decompress
+from fewshot.utils import logger
 
 log = logger.get()
 

@@ -26,10 +26,10 @@ import pickle as pkl
 
 import tensorflow as tf
 
-from l2kl.data.episode import Episode
-from l2kl.data.data_factory import RegisterDataset
-from l2kl.data.refinement_dataset import RefinementMetaDataset
-from l2kl.utils import logger
+from fewshot.data.episode import Episode
+from fewshot.data.data_factory import RegisterDataset
+from fewshot.data.refinement_dataset import RefinementMetaDataset
+from fewshot.utils import logger
 
 log = logger.get()
 flags = tf.flags

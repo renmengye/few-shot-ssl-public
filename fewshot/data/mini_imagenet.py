@@ -33,10 +33,10 @@ import tensorflow as tf
 from collections import namedtuple
 from tqdm import tqdm
 
-from l2kl.data.data_factory import RegisterDataset
-from l2kl.data.episode import Episode
-from l2kl.data.refinement_dataset import RefinementMetaDataset
-from l2kl.utils import logger
+from fewshot.data.data_factory import RegisterDataset
+from fewshot.data.episode import Episode
+from fewshot.data.refinement_dataset import RefinementMetaDataset
+from fewshot.utils import logger
 
 AL_Instance = namedtuple('AL_Instance',
                          'n_class, n_distractor, k_train, k_test, k_unlbl')
@@ -47,9 +47,9 @@ N_IMAGES = 600
 N_INPUT = 84
 IMAGES_PATH = "images/"
 CSV_FILES = {
-    'train': 'l2kl/data/mini_imagenet_split/Ravi/train.csv',
-    'val': 'l2kl/data/mini_imagenet_split/Ravi/test.csv',
-    'test': 'l2kl/data/mini_imagenet_split/Ravi/val.csv'
+    'train': 'fewshot/data/mini_imagenet_split/Ravi/train.csv',
+    'val': 'fewshot/data/mini_imagenet_split/Ravi/test.csv',
+    'test': 'fewshot/data/mini_imagenet_split/Ravi/val.csv'
 }
 
 # Fixed random seed to get same split of labeled vs unlabeled items for each class

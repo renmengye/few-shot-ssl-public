@@ -19,15 +19,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 # =============================================================================
-from l2kl.configs.config_factory import RegisterConfig
+from fewshot.configs.config_factory import RegisterConfig
 
 
-@RegisterConfig("mini-imagenet", "basic")
+@RegisterConfig("tiered-imagenet", "basic")
 class BasicConfig(object):
   """Standard CNN with prototypical layer."""
 
   def __init__(self):
-    self.name = "mini-imagenet_basic"
+    self.name = "tiered-imagenet_basic"
     self.model_class = "basic"
     self.height = 84
     self.width = 84
@@ -55,7 +55,7 @@ class BasicConfig(object):
     self.similarity = "euclidean"
 
 
-@RegisterConfig("mini-imagenet", "basic-pretrain")
+@RegisterConfig("tiered-imagenet", "basic-pretrain")
 class BasicPretrainConfig(BasicConfig):
 
   def __init__(self):
@@ -67,31 +67,31 @@ class BasicPretrainConfig(BasicConfig):
     self.similarity = "euclidean"
 
 
-@RegisterConfig("mini-imagenet", "kmeans-refine")
+@RegisterConfig("tiered-imagenet", "kmeans-refine")
 class KMeansRefineConfig(BasicConfig):
 
   def __init__(self):
     super(KMeansRefineConfig, self).__init__()
-    self.name = "mini-imagenet_kmeans-refine"
+    self.name = "tiered-imagenet_kmeans-refine"
     self.model_class = "kmeans-refine"
     self.num_cluster_steps = 1
 
 
-@RegisterConfig("mini-imagenet", "kmeans-refine-radius")
+@RegisterConfig("tiered-imagenet", "kmeans-refine-radius")
 class KMeansRefineDistractorConfig(BasicConfig):
 
   def __init__(self):
     super(KMeansRefineDistractorConfig, self).__init__()
-    self.name = "mini-imagenet_kmeans-refine-radius"
+    self.name = "tiered-imagenet_kmeans-refine-radius"
     self.model_class = "kmeans-refine-radius"
     self.num_cluster_steps = 1
 
 
-@RegisterConfig("mini-imagenet", "kmeans-refine-mask")
+@RegisterConfig("tiered-imagenet", "kmeans-refine-mask")
 class KMeansRefineDistractorMSV3Config(BasicConfig):
 
   def __init__(self):
     super(KMeansRefineDistractorMSV3Config, self).__init__()
-    self.name = "mini-imagenet_kmeans-refine-mask"
+    self.name = "tiered-imagenet_kmeans-refine-mask"
     self.model_class = "kmeans-refine-mask"
     self.num_cluster_steps = 1

@@ -47,19 +47,19 @@ import numpy as np
 import six
 import tensorflow as tf
 
-from l2kl.configs import get_config
-from l2kl.configs.jake_imagenet_config import *
-from l2kl.configs.mini_imagenet_config import *
-from l2kl.configs.omniglot_config import *
-from l2kl.data import get_dataset
-from l2kl.data.jake_imagenet_refinement import JakeImageNetRefinementMetaDataset
-from l2kl.data.mini_imagenet_refinement_s import MiniImageNetRefinementMetaDatasetS
-from l2kl.data.omniglot import OmniglotEpisode
-from l2kl.data.omniglot import OmniglotMetaDataset
-from l2kl.data.omniglot_refinement import OmniglotRefinementMetaDataset
-from l2kl.models.nnlib import cnn, weight_variable
-from l2kl.utils import logger
-from l2kl.utils.batch_iter import BatchIterator
+from fewshot.configs import get_config
+from fewshot.configs.jake_imagenet_config import *
+from fewshot.configs.mini_imagenet_config import *
+from fewshot.configs.omniglot_config import *
+from fewshot.data import get_dataset
+from fewshot.data.jake_imagenet_refinement import JakeImageNetRefinementMetaDataset
+from fewshot.data.mini_imagenet_refinement_s import MiniImageNetRefinementMetaDatasetS
+from fewshot.data.omniglot import OmniglotEpisode
+from fewshot.data.omniglot import OmniglotMetaDataset
+from fewshot.data.omniglot_refinement import OmniglotRefinementMetaDataset
+from fewshot.models.nnlib import cnn, weight_variable
+from fewshot.utils import logger
+from fewshot.utils.batch_iter import BatchIterator
 from tqdm import tqdm
 
 log = logger.get()

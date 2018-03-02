@@ -22,26 +22,31 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from l2kl.utils import logger
+import numpy as np
+import unittest
 
-log = logger.get()
-
-MODEL_REGISTRY = {}
-
-
-def RegisterModel(model_name):
-  """Registers a model class"""
-
-  def decorator(f):
-    MODEL_REGISTRY[model_name] = f
-    return f
-
-  return decorator
+from fewshot.models.measure import batch_apk, apk
 
 
-def get_model(model_name, *args, **kwargs):
-  log.info("Model {}".format(model_name))
-  if model_name in MODEL_REGISTRY:
-    return MODEL_REGISTRY[model_name](*args, **kwargs)
-  else:
-    raise ValueError("Model class does not exist {}".format(model_name))
+def fake_batch_apk(logits, pos_mask, k):
+  ap = []
+  for ii in range(logits.shape[0]):
+    ap.append(apk(logits[ii], pos_mask[ii], k[ii]))
+  return np.array(ap)
+
+
+class MeasureTests(unittest.TestCase):
+
+  def test_batch_apk(self):
+    rnd = np.random.RandomState(0)
+    for ii in range(100):
+      logits = rnd.uniform(0.0, 1.0, [10, 12])
+      pos_mask = (rnd.uniform(0.0, 1.0, [10, 12]) > 0.5).astype(np.float32)
+      k = rnd.uniform(5.0, 10.0, [10]).astype(np.int32)
+      ap1 = batch_apk(logits, pos_mask, k)
+      ap2 = fake_batch_apk(logits, pos_mask, k)
+      np.testing.assert_allclose(ap1, ap2)
+
+
+if __name__ == "__main__":
+  unittest.main()

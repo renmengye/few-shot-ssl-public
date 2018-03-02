@@ -36,9 +36,9 @@ from __future__ import (absolute_import, division, print_function,
 import numpy as np
 import tensorflow as tf
 
-from l2kl.models.nnlib import cnn, weight_variable, concat
-from l2kl.models.basic_model import BasicModel
-from l2kl.utils import logger
+from fewshot.models.nnlib import cnn, weight_variable, concat
+from fewshot.models.basic_model import BasicModel
+from fewshot.utils import logger
 log = logger.get()
 
 # Load up the LSTM cell implementation.
@@ -94,5 +94,5 @@ class RefineModel(BasicModel):
 
 
 if __name__ == "__main__":
-  from l2kl.configs.omniglot_config import OmniglotRefineConfig
+  from fewshot.configs.omniglot_config import OmniglotRefineConfig
   model = RefineModel(OmniglotRefineConfig())

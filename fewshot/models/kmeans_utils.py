@@ -24,8 +24,8 @@ from __future__ import division, print_function
 import numpy as np
 import tensorflow as tf
 
-from l2kl.models.nnlib import concat, round_st
-from l2kl.utils import logger
+from fewshot.models.nnlib import concat, round_st
+from fewshot.utils import logger
 
 log = logger.get()
 

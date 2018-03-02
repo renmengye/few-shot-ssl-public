@@ -75,24 +75,24 @@ import numpy as np
 import six
 import tensorflow as tf
 
-from l2kl.configs import get_config
-from l2kl.configs.mini_imagenet_config import *
-from l2kl.configs.omniglot_config import *
-from l2kl.configs.tiered_imagenet_config import *
-from l2kl.data.data_factory import get_dataset
-from l2kl.data.episode import Episode
-from l2kl.data.mini_imagenet import MiniImageNetDataset
-from l2kl.data.omniglot import OmniglotDataset
-from l2kl.data.tiered_imagenet import TieredImageNetDataset
-from l2kl.models.basic_model import BasicModel
-from l2kl.models.kmeans_refine_mask_model import KMeansRefineMaskModel
-from l2kl.models.kmeans_refine_model import KMeansRefineModel
-from l2kl.models.kmeans_refine_radius_model import KMeansRefineRadiusModel
-from l2kl.models.measure import batch_apk
-from l2kl.models.model_factory import get_model
-from l2kl.utils import logger
-from l2kl.utils.experiment_logger import ExperimentLogger
-from l2kl.utils.lr_schedule import FixedLearnRateScheduler
+from fewshot.configs import get_config
+from fewshot.configs.mini_imagenet_config import *
+from fewshot.configs.omniglot_config import *
+from fewshot.configs.tiered_imagenet_config import *
+from fewshot.data.data_factory import get_dataset
+from fewshot.data.episode import Episode
+from fewshot.data.mini_imagenet import MiniImageNetDataset
+from fewshot.data.omniglot import OmniglotDataset
+from fewshot.data.tiered_imagenet import TieredImageNetDataset
+from fewshot.models.basic_model import BasicModel
+from fewshot.models.kmeans_refine_mask_model import KMeansRefineMaskModel
+from fewshot.models.kmeans_refine_model import KMeansRefineModel
+from fewshot.models.kmeans_refine_radius_model import KMeansRefineRadiusModel
+from fewshot.models.measure import batch_apk
+from fewshot.models.model_factory import get_model
+from fewshot.utils import logger
+from fewshot.utils.experiment_logger import ExperimentLogger
+from fewshot.utils.lr_schedule import FixedLearnRateScheduler
 from tqdm import tqdm
 
 log = logger.get()

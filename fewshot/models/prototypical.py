@@ -22,9 +22,9 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from l2kl.models.nnlib import cnn
-from l2kl.models.nnlib import concat
-from l2kl.utils import logger
+from fewshot.models.nnlib import cnn
+from fewshot.models.nnlib import concat
+from fewshot.utils import logger
 
 import tensorflow as tf
 

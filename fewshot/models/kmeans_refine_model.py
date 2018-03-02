@@ -30,11 +30,11 @@ running a few steps of soft K-means iterations.
 """
 import tensorflow as tf
 
-from l2kl.models.kmeans_utils import assign_cluster, update_cluster, compute_logits
-from l2kl.models.model_factory import RegisterModel
-from l2kl.models.nnlib import concat
-from l2kl.models.refine_model import RefineModel
-from l2kl.utils import logger
+from fewshot.models.kmeans_utils import assign_cluster, update_cluster, compute_logits
+from fewshot.models.model_factory import RegisterModel
+from fewshot.models.nnlib import concat
+from fewshot.models.refine_model import RefineModel
+from fewshot.utils import logger
 
 log = logger.get()
 

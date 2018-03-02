@@ -44,7 +44,7 @@ import tensorflow as tf
 
 from collections import namedtuple
 
-from l2kl.utils import logger
+from fewshot.utils import logger
 from run_exp import _get_model
 from run_exp import evaluate
 from run_exp import get_config

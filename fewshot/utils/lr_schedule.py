@@ -25,7 +25,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import numpy as np
 
-from l2kl.utils import logger
+from fewshot.utils import logger
 
 log = logger.get()
 

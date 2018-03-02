@@ -30,14 +30,14 @@ from __future__ import (absolute_import, division, print_function,
 import numpy as np
 import tensorflow as tf
 
-from l2kl.models.distractor_utils import eval_distractor
-from l2kl.models.kmeans_refine_model import KMeansRefineModel
-from l2kl.models.kmeans_utils import assign_cluster_radii
-from l2kl.models.kmeans_utils import compute_logits_radii
-from l2kl.models.kmeans_utils import update_cluster
-from l2kl.models.model_factory import RegisterModel
-from l2kl.models.nnlib import concat
-from l2kl.utils import logger
+from fewshot.models.distractor_utils import eval_distractor
+from fewshot.models.kmeans_refine_model import KMeansRefineModel
+from fewshot.models.kmeans_utils import assign_cluster_radii
+from fewshot.models.kmeans_utils import compute_logits_radii
+from fewshot.models.kmeans_utils import update_cluster
+from fewshot.models.model_factory import RegisterModel
+from fewshot.models.nnlib import concat
+from fewshot.utils import logger
 
 log = logger.get()
 

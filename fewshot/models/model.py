@@ -29,9 +29,9 @@ from __future__ import (absolute_import, division, print_function,
 
 import numpy as np
 import tensorflow as tf
-from l2kl.models.nnlib import cnn, concat
-from l2kl.models.measure import batch_apk, apk
-from l2kl.utils import logger
+from fewshot.models.nnlib import cnn, concat
+from fewshot.models.measure import batch_apk, apk
+from fewshot.utils import logger
 
 flags = tf.flags
 flags.DEFINE_bool("allstep", False,
