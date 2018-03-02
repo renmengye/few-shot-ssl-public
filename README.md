@@ -62,7 +62,7 @@ tieredImageNet experiments.
 Please run the following scripts to reproduce the core experiments.
 ```
 # Clone the repository.
-git clone git@github.com:renmengye/few-shot-ssl-public.git
+git clone https://github.com/renmengye/few-shot-ssl-public.git
 cd few-shot-ssl-public
 
 # To train a model.
@@ -131,7 +131,7 @@ In *Proceedings of 6th International Conference on Learning Representations (ICL
 @inproceeding{ren18fewshotssl,
   author   = {Mengye Ren and Eleni Triantafillou and Sachin Ravi and Jake Snell and Kevin Swersky 
               and Joshua B. Tenenbaum and Hugo Larochelle and Richard S. Zemel},
-  title    = {The Reversible Residual Network: Backpropagation without Storing Activations},
+  title    = {Meta-Learning for Semi-Supervised Few-Shot Classification},
   booktitle= {Proceedings of 6th International Conference on Learning Representations (ICLR)},
   year     = {2018},
 }
