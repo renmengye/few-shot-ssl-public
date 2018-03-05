@@ -1,6 +1,6 @@
 # few-shot-ssl-public
 Code for paper
-*Meta-Learning for Semi-Supervised Few-Shot Classification.* [[arxiv](placeholder)]
+*Meta-Learning for Semi-Supervised Few-Shot Classification.* [[arxiv](https://arxiv.org/abs/1803.00676)]
 
 ## Dependencies
 * cv2
