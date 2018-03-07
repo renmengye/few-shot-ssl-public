@@ -138,7 +138,7 @@ In *Proceedings of 6th International Conference on Learning Representations (ICL
               Hugo Larochelle and 
               Richard S. Zemel},
   title    = {Meta-Learning for Semi-Supervised Few-Shot Classification},
-  booktitle= {Proceedings of 6th International Conference on Learning Representations (ICLR)},
+  booktitle= {Proceedings of 6th International Conference on Learning Representations {ICLR}},
   year     = {2018},
 }
 ```
