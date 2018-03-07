@@ -129,8 +129,14 @@ In *Proceedings of 6th International Conference on Learning Representations (ICL
 
 ```
 @inproceeding{ren18fewshotssl,
-  author   = {Mengye Ren and Eleni Triantafillou and Sachin Ravi and Jake Snell and Kevin Swersky 
-              and Joshua B. Tenenbaum and Hugo Larochelle and Richard S. Zemel},
+  author   = {Mengye Ren and 
+              Eleni Triantafillou and 
+              Sachin Ravi and 
+              Jake Snell and 
+              Kevin Swersky and 
+              Joshua B. Tenenbaum and 
+              Hugo Larochelle and 
+              Richard S. Zemel},
   title    = {Meta-Learning for Semi-Supervised Few-Shot Classification},
   booktitle= {Proceedings of 6th International Conference on Learning Representations (ICLR)},
   year     = {2018},
