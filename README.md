@@ -128,7 +128,7 @@ Meta-Learning for Semi-Supervised Few-Shot Classification.
 In *Proceedings of 6th International Conference on Learning Representations (ICLR)*, 2018.
 
 ```
-@inproceeding{ren18fewshotssl,
+@inproceedings{ren18fewshotssl,
   author   = {Mengye Ren and 
               Eleni Triantafillou and 
               Sachin Ravi and 
