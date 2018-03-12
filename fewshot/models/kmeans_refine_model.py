@@ -72,6 +72,7 @@ class KMeansRefineModel(RefineModel):
       entropy = tf.reduce_sum(
           -prob_unlabel * tf.log(prob_unlabel), [2], keep_dims=True)
       prob_all = concat([prob_train, prob_unlabel], 1)
+      prob_all = tf.stop_gradient(prob_all)
       protos = update_cluster(h_all, prob_all)
       # protos = tf.cond(
       #     tf.shape(self._x_unlabel)[1] > 0,

@@ -85,11 +85,16 @@ class RefinementMetaDataset(object):
     # Build a set for quick query.
     self._label_split_idx = np.array(self._label_split_idx)
     self._label_split_idx_set = set(list(self._label_split_idx))
-    self._unlabel_split_idx = filter(
-        lambda _idx: _idx not in self._label_split_idx_set,
-        range(self._labels.shape[0]))
+    self._unlabel_split_idx = list(
+        filter(lambda _idx: _idx not in self._label_split_idx_set,
+               range(self._labels.shape[0])))
     self._unlabel_split_idx = np.array(self._unlabel_split_idx)
-    self._unlabel_split_idx_set = set(list(self._unlabel_split_idx))
+    if self._unlabel_split_idx.size > 0:
+      print(self._unlabel_split_idx.size)
+      print(self._unlabel_split_idx)
+      self._unlabel_split_idx_set = set(self._unlabel_split_idx)
+    else:
+      self._unlabel_split_idx_set = set()
 
     num_label_cls = len(self._label_str)
     self._num_classes = num_label_cls
@@ -180,9 +185,10 @@ class RefinementMetaDataset(object):
       _ids = self._label_idict[cc]
 
       # Split the image IDs into labeled and unlabeled.
-      _label_ids = filter(lambda _id: _id in self._label_split_idx_set, _ids)
-      _unlabel_ids = filter(lambda _id: _id not in self._label_split_idx_set,
-                            _ids)
+      _label_ids = list(
+          filter(lambda _id: _id in self._label_split_idx_set, _ids))
+      _unlabel_ids = list(
+          filter(lambda _id: _id not in self._label_split_idx_set, _ids))
       self._rnd.shuffle(_label_ids)
       self._rnd.shuffle(_unlabel_ids)
 
