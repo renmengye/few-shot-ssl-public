@@ -146,16 +146,16 @@ class TieredImageNetDataset(RefinementMetaDataset):
     if os.path.exists(cache_path_labels) and os.path.exists(cache_path_images):
       print("Read cached labels from {}".format(cache_path_labels))
       with open(cache_path_labels, "rb") as f:
-        data = pkl.load(f)
-        self._label_specific = data["label_specific"]
-        self._label_general = data["label_general"]
-        self._label_specific_str = data["label_specific_str"]
-        self._label_general_str = data["label_general_str"]
+        data = pkl.load(f, encoding='bytes')
+        self._label_specific = data[b"label_specific"]
+        self._label_general = data[b"label_general"]
+        self._label_specific_str = data[b"label_specific_str"]
+        self._label_general_str = data[b"label_general_str"]
         self._label_str = self._label_specific_str
         self._labels = self._label_specific
       print("Read cached images from {}".format(cache_path_images))
-      with np.load(cache_path_images, mmap_mode="r") as data:
-        self._images = data["images"]
+      with np.load(cache_path_images, mmap_mode="r", encoding='latin1') as data:
+        self._images = data[b"images"]
         print("self._images.shape {}".format(self._images.shape))
       self.read_label_split()
       return True

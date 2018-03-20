@@ -190,7 +190,6 @@ class OmniglotDataset(RefinementMetaDataset):
     if os.path.exists(cache_path):
       with open(cache_path, 'rb') as f:
         data = pkl.load(f, encoding='bytes')
-        print(data.keys())
         self._images = data[b'images']
         self._labels = data[b'labels']
         self._label_str = data[b'label_str']

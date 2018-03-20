@@ -47,7 +47,7 @@ import numpy as np
 import six
 import tensorflow as tf
 
-from fewshot.configs import get_config
+from fewshot.configs.config_factory import get_config
 from fewshot.configs.tiered_imagenet_config import *
 from fewshot.configs.mini_imagenet_config import *
 from fewshot.configs.omniglot_config import *
@@ -547,28 +547,26 @@ def run_lr(sess,
 def main():
   # ------------------------------------------------------------------------
   # Flags.
-  _dataset = "omniglot" if "omniglot" in FLAGS.dataset else ""
-  _dataset = "jake_imagenet" if "jake_imagenet" in FLAGS.dataset else _dataset
-  dataset = "mini_imagenet" if "mini_imagenet" in FLAGS.dataset else _dataset
-  if 'mini_imagenet' in FLAGS.dataset or 'jake_imagenet' in FLAGS.dataset:
-    _aug_90 = False
-    input_shape = [84, 84, 3]
-    feature_shape = [1600]
-  elif 'omniglot' in FLAGS.dataset:
-    _aug_90 = FLAGS.aug
-    input_shape = [28, 28, 1]
-    feature_shape = [64]
-  else:
-    raise ValueError('Unknown dataset')
-  if FLAGS.num_test == -1 and _dataset == "jake_imagenet":
-    num_test = 20
-  elif FLAGS.num_test == -1 and _dataset == "mini_imagenet":
-    num_test = 20
+  if FLAGS.num_test == -1 and (FLAGS.dataset == "tiered-imagenet" or
+                               FLAGS.dataset == 'mini-imagenet'):
+    num_test = 5
   else:
     num_test = FLAGS.num_test
   nclasses_train = FLAGS.nclasses_train
   nclasses_eval = FLAGS.nclasses_eval
+
+  # Whether doing 90 degree augmentation.
+  if 'mini-imagenet' in FLAGS.dataset or 'tiered-imagenet' in FLAGS.dataset:
+    _aug_90 = False
+    input_shape = [84, 84, 3]
+    feature_shape = [1600]
+  else:
+    _aug_90 = True
+    input_shape = [28, 28, 1]
+    feature_shape = [64]
+
   nshot = FLAGS.nshot
+  dataset = FLAGS.dataset
 
   meta_train_dataset = get_dataset(
       FLAGS.dataset,
