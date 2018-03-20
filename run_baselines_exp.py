@@ -283,13 +283,11 @@ def supervised_pretrain(sess,
   embedding model for baselines.
 
   Args:
-    sess:
-    model:
-    train_data:
-    test_data:
-    num_steps:
-
-  Returns:
+    sess: TensorFlow session object.
+    model: SupervisedModel object.
+    train_data: Training dataset object.
+    test_data: Testing dataset object.
+    num_steps: Int. Number of training steps.
   """
   train_iter = BatchIterator(
       train_data.get_size(),
@@ -619,10 +617,10 @@ def main():
     exp_logger = get_exp_logger(sess, log_folder)
 
     def _logging_fn(niter, data):
-      log.info(
-          'Step {} Train Cost {:.3e} Train Acc {:.3f} Test Cost {:.3e} Test Acc {:.3f}'.
-          format(niter, data['train_cost'], data['train_acc'] * 100.0, data[
-              'test_cost'], data['test_acc'] * 100.0))
+      # log.info(
+      #     'Step {} Train Cost {:.3e} Train Acc {:.3f} Test Cost {:.3e} Test Acc {:.3f}'.
+      #     format(niter, data['train_cost'], data['train_acc'] * 100.0, data[
+      #         'test_cost'], data['test_acc'] * 100.0))
       for key in data:
         exp_logger.log(key, niter, data[key])
       exp_logger.flush()

@@ -23,6 +23,8 @@
 
 Author: Eleni Triantafillou (eleni@cs.toronto.edu)
 """
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import os
 import cv2
@@ -155,7 +157,7 @@ class TieredImageNetDataset(RefinementMetaDataset):
         self._labels = self._label_specific
       print("Read cached images from {}".format(cache_path_images))
       with np.load(cache_path_images, mmap_mode="r", encoding='latin1') as data:
-        self._images = data[b"images"]
+        self._images = data["images"]
         print("self._images.shape {}".format(self._images.shape))
       self.read_label_split()
       return True
