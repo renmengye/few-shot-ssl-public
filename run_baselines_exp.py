@@ -1,4 +1,4 @@
-# Copyright (c) 2018 Mengye Ren, Eleni Triantafillou, Sachin Ravi, Jake Snell, 
+# Copyright (c) 2018 Mengye Ren, Eleni Triantafillou, Sachin Ravi, Jake Snell,
 # Kevin Swersky, Joshua B. Tenenbaum, Hugo Larochelle, Richars S. Zemel.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -48,15 +48,14 @@ import six
 import tensorflow as tf
 
 from fewshot.configs import get_config
-from fewshot.configs.jake_imagenet_config import *
+from fewshot.configs.tiered_imagenet_config import *
 from fewshot.configs.mini_imagenet_config import *
 from fewshot.configs.omniglot_config import *
-from fewshot.data import get_dataset
-from fewshot.data.jake_imagenet_refinement import JakeImageNetRefinementMetaDataset
-from fewshot.data.mini_imagenet_refinement_s import MiniImageNetRefinementMetaDatasetS
-from fewshot.data.omniglot import OmniglotEpisode
-from fewshot.data.omniglot import OmniglotMetaDataset
-from fewshot.data.omniglot_refinement import OmniglotRefinementMetaDataset
+from fewshot.data.data_factory import get_dataset
+from fewshot.data.episode import Episode
+from fewshot.data.tiered_imagenet import TieredImageNetDataset
+from fewshot.data.mini_imagenet import MiniImageNetDataset
+from fewshot.data.omniglot import OmniglotDataset
 from fewshot.models.nnlib import cnn, weight_variable
 from fewshot.utils import logger
 from fewshot.utils.batch_iter import BatchIterator
@@ -70,9 +69,9 @@ class LRModel(object):
 
   def __init__(self, x, y, num_classes, dtype=tf.float32, learn_rate=1e-3):
     x_shape = x.get_shape()
-    # x_size = reduce(lambda x, y: x * y, [int(ss) for ss in x_shape[1:]])
-    x_size = reduce(lambda x, y: x * y, [int(ss) for ss in x_shape[1:]])
-    # log.fatal(x_size)
+    x_size = 1
+    for ss in x_shape[1:]:
+      x_size *= int(ss)
     x = tf.reshape(x, [-1, x_size])
     w_class = weight_variable(
         [x_size, num_classes],
@@ -171,7 +170,9 @@ class SupervisedModel(object):
         is_training=is_training,
         ext_wts=None)
     h_shape = h.get_shape()
-    h_size = reduce(lambda x, y: x * y, [int(ss) for ss in h_shape[1:]])
+    h_size = 1
+    for ss in h_shape[1:]:
+      h_size *= int(ss)
     h = tf.reshape(h, [-1, h_size])
     w_class = weight_variable(
         [h_size, num_classes],
@@ -375,7 +376,7 @@ def preprocess_batch(batch):
     else:
       y_unlabel = None
 
-    return OmniglotEpisode(
+    return Episode(
         x_train,
         y_train,
         x_test,
@@ -753,5 +754,5 @@ if __name__ == '__main__':
   flags.DEFINE_integer("num_test", -1, "Number of test images per episode")
   flags.DEFINE_integer("num_unlabel", 5, "Number of unlabeled for training")
   flags.DEFINE_integer("seed", 0, "Random seed")
-  flags.DEFINE_string("dataset", "omniglot_refinement", "Dataset name")
+  flags.DEFINE_string("dataset", "omniglot", "Dataset name")
   main()

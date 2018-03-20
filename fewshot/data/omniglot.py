@@ -19,6 +19,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 # =============================================================================
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 import cv2
 import numpy as np
 import os
@@ -187,10 +189,11 @@ class OmniglotDataset(RefinementMetaDataset):
     print(cache_path)
     if os.path.exists(cache_path):
       with open(cache_path, 'rb') as f:
-        data = pkl.load(f)
-        self._images = data['images']
-        self._labels = data['labels']
-        self._label_str = data['label_str']
+        data = pkl.load(f, encoding='bytes')
+        print(data.keys())
+        self._images = data[b'images']
+        self._labels = data[b'labels']
+        self._label_str = data[b'label_str']
         self.read_label_split()
       return True
     else:

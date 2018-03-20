@@ -28,11 +28,11 @@ Usage:
         labels_batch = labels_all[idx]
         train(inp_batch, labels_batch)
 """
-from __future__ import division
+from __future__ import division, print_function
 
 import numpy as np
-import logger
 import threading
+from fewshot.utils import logger
 
 
 class IBatchIterator(object):
@@ -210,7 +210,7 @@ if __name__ == "__main__":
       cycle=False,
       shuffle=False)
   for ii in b:
-    print ii
+    print(ii)
   b.reset()
   for ii in b:
-    print ii
+    print(ii)

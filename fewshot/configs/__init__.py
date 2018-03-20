@@ -1,1 +1,1 @@
-from config_factory import get_config
+from fewshot.configs.config_factory import get_config
