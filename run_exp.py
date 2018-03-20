@@ -75,7 +75,7 @@ import numpy as np
 import six
 import tensorflow as tf
 
-from fewshot.configs import get_config
+from fewshot.configs.config_factory import get_config
 from fewshot.configs.mini_imagenet_config import *
 from fewshot.configs.omniglot_config import *
 from fewshot.configs.tiered_imagenet_config import *

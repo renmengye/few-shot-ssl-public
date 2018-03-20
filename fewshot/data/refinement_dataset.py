@@ -183,9 +183,10 @@ class RefinementMetaDataset(object):
       _ids = self._label_idict[cc]
 
       # Split the image IDs into labeled and unlabeled.
-      _label_ids = filter(lambda _id: _id in self._label_split_idx_set, _ids)
-      _unlabel_ids = filter(lambda _id: _id not in self._label_split_idx_set,
-                            _ids)
+      _label_ids = list(
+          filter(lambda _id: _id in self._label_split_idx_set, _ids))
+      _unlabel_ids = list(
+          filter(lambda _id: _id not in self._label_split_idx_set, _ids))
       self._rnd.shuffle(_label_ids)
       self._rnd.shuffle(_unlabel_ids)
 

@@ -162,7 +162,9 @@ class Model(object):
       if self._embedding_weights is None:
         self._embedding_weights = wts
       h_shape = h.get_shape()
-      h_size = reduce(lambda x, y: x * y, [int(ss) for ss in h_shape[1:]])
+      h_size = 1
+      for ss in h_shape[1:]:
+        h_size *= int(ss)
       h = tf.reshape(h, [-1, h_size])
     return h
 
@@ -181,8 +183,8 @@ class Model(object):
       for layer in range(len(self.config.filter_size)):
         with tf.variable_scope("layer_{}".format(layer)):
           for wname1, wname2 in zip(
-              ["w", "b", "ema_mean", "ema_var", "beta",
-               "gamma"], ["w", "b", "emean", "evar", "beta", "gamma"]):
+              ["w", "b", "ema_mean", "ema_var", "beta", "gamma"],
+              ["w", "b", "emean", "evar", "beta", "gamma"]):
             assign_ops.append(
                 tf.assign(
                     tf.get_variable(wname1), ext_wts["{}_{}".format(
