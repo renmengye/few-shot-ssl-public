@@ -135,9 +135,14 @@ class MiniImageNetDataset(object):
     cache_path = self.get_cache_path(split)
     if os.path.exists(cache_path):
       with open(cache_path, "rb") as f:
-        data = pkl.load(f, encoding='bytes')
-        self.img_data = data[b'image_data']
-        self.class_dict = data[b'class_dict']
+        try:
+          data = pkl.load(f, encoding='bytes')
+          self.img_data = data[b'image_data']
+          self.class_dict = data[b'class_dict']
+        except:
+          data = pkl.load(f)
+          self.img_data = data['image_data']
+          self.class_dict = data['class_dict']
       return True
     else:
       return False
@@ -195,9 +200,9 @@ class MiniImageNetDataset(object):
       total_unlbl = self._concat_or_identity(total_unlbl, unlbl)
 
     for idx, cl in enumerate(sel_classes[self.al_instance.n_class:]):
-      unlbl = self._get_rand_partition(list(self.class_dict.keys())[cl],
-                                       self.al_instance.n_class + idx,
-                                       k_per_class[idx])
+      unlbl = self._get_rand_partition(
+          list(self.class_dict.keys())[cl], self.al_instance.n_class + idx,
+          k_per_class[idx])
       total_unlbl = self._concat_or_identity(total_unlbl, unlbl)
 
     assert self._check_shape(total_train, self.al_instance.n_class,

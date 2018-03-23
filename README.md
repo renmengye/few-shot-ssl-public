@@ -6,7 +6,7 @@ Code for paper
 * cv2
 * numpy
 * pandas
-* python 2.7
+* python 2.7 / 3.5+
 * tensorflow 1.3+
 * tqdm
 
