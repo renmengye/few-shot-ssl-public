@@ -37,6 +37,8 @@ from fewshot.data.data_factory import RegisterDataset
 from fewshot.data.episode import Episode
 from fewshot.data.refinement_dataset import RefinementMetaDataset
 from fewshot.utils import logger
+from scipy.ndimage import imread
+from scipy.misc import imresize
 
 AL_Instance = namedtuple('AL_Instance',
                          'n_class, n_distractor, k_train, k_test, k_unlbl')
@@ -158,8 +160,8 @@ class MiniImageNetDataset(object):
             class_dict[class_name] = [i]
           img_data.append(
               imresize(
-                  imread(self.images_path + image_filename), (self.n_input,
-                                                              self.n_input, 3)))
+                  imread(self.images_path + image_filename),
+                  (self.n_input, self.n_input, 3)))
           i += 1
 
     self.img_data = np.stack(img_data)
@@ -281,20 +283,22 @@ class MiniImageNetDataset(object):
     train_and_test_data = [
         DatasetT(
             data=self._read_set(s),
-            labels=np.full([len(s)], class_idx, dtype=np.int8),)
-        for s in [train, test]
+            labels=np.full([len(s)], class_idx, dtype=np.int8),
+        ) for s in [train, test]
     ]
 
     if class_idx < self.al_instance.n_class:
       return train_and_test_data + [
           DatasetT(
               data=self._read_set(s),
-              labels=np.full([len(s)], 1, dtype=np.int8),) for s in [unlbl]
+              labels=np.full([len(s)], 1, dtype=np.int8),
+          ) for s in [unlbl]
       ]
     else:
       return DatasetT(
           data=self._read_set(unlbl),
-          labels=np.full([len(unlbl)], 0, dtype=np.int8),)
+          labels=np.full([len(unlbl)], 0, dtype=np.int8),
+      )
 
   def _read_set(self, image_list):
     '''
@@ -310,8 +314,8 @@ class MiniImageNetDataset(object):
       return np.stack(data)
 
   def _read_image(self, image_filename):
-    return imresize(imread(image_filename), (self.n_input, self.n_input,
-                                             3)) / 255.0
+    return imresize(imread(image_filename),
+                    (self.n_input, self.n_input, 3)) / 255.0
 
   def _read_from_cache(self, idx):
     return self.img_data[idx] / 255.0
