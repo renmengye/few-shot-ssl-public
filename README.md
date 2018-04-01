@@ -6,7 +6,7 @@ Code for paper
 * cv2
 * numpy
 * pandas
-* python 2.7
+* python 2.7 / 3.5+
 * tensorflow 1.3+
 * tqdm
 
@@ -43,7 +43,7 @@ rm -f mini-imagenet.tar.gz
 ```
 
 ### tieredImageNet
-[[Google Drive](https://drive.google.com/open?id=1XHgOy_SIJ6ntDmygOqyUyq1re2Z-JBje)]  (12.9 GB)
+[[Google Drive](https://drive.google.com/open?id=1hqVbS2nhHXa51R9_aB6QDXeC0P2LQG_u)]  (12.9 GB)
 ```
 # Download and place "tiered-imagenet.tar" in "$DATA_ROOT/tiered-imagenet".
 mkdir -p $DATA_ROOT/tiered-imagenet

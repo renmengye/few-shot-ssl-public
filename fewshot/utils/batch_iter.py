@@ -28,11 +28,11 @@ Usage:
         labels_batch = labels_all[idx]
         train(inp_batch, labels_batch)
 """
-from __future__ import division
+from __future__ import division, print_function
 
 import numpy as np
-import logger
 import threading
+from fewshot.utils import logger
 
 
 class IBatchIterator(object):
@@ -131,8 +131,8 @@ class BatchIterator(IBatchIterator):
     digit = int(np.ceil(np.log10(b)))
     progress_str = "{:" + str(digit) + "d}"
     progress_str = (progress_str + "/" + progress_str).format(int(a), int(b))
-    self._log.info("Epoch {:3d} Progress {} ({:5.2f}%)".format(e, progress_str,
-                                                               p))
+    self._log.info(
+        "Epoch {:3d} Progress {} ({:5.2f}%)".format(e, progress_str, p))
     pass
 
   def next(self):
@@ -188,7 +188,7 @@ class BatchIterator(IBatchIterator):
         idx = idx.astype("int")
         idx = self._shuffle_idx[idx]
       else:
-        idx = np.array(range(start, self._num) + range(0, end))
+        idx = np.concatenate([np.arange(start, self._num), np.arange(0, end)])
         idx = idx.astype("int")
         idx = self._shuffle_idx[idx]
         # Shuffle every cycle.
@@ -210,7 +210,7 @@ if __name__ == "__main__":
       cycle=False,
       shuffle=False)
   for ii in b:
-    print ii
+    print(ii)
   b.reset()
   for ii in b:
-    print ii
+    print(ii)

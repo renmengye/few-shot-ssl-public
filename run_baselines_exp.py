@@ -1,4 +1,4 @@
-# Copyright (c) 2018 Mengye Ren, Eleni Triantafillou, Sachin Ravi, Jake Snell, 
+# Copyright (c) 2018 Mengye Ren, Eleni Triantafillou, Sachin Ravi, Jake Snell,
 # Kevin Swersky, Joshua B. Tenenbaum, Hugo Larochelle, Richars S. Zemel.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -47,16 +47,15 @@ import numpy as np
 import six
 import tensorflow as tf
 
-from fewshot.configs import get_config
-from fewshot.configs.jake_imagenet_config import *
+from fewshot.configs.config_factory import get_config
+from fewshot.configs.tiered_imagenet_config import *
 from fewshot.configs.mini_imagenet_config import *
 from fewshot.configs.omniglot_config import *
-from fewshot.data import get_dataset
-from fewshot.data.jake_imagenet_refinement import JakeImageNetRefinementMetaDataset
-from fewshot.data.mini_imagenet_refinement_s import MiniImageNetRefinementMetaDatasetS
-from fewshot.data.omniglot import OmniglotEpisode
-from fewshot.data.omniglot import OmniglotMetaDataset
-from fewshot.data.omniglot_refinement import OmniglotRefinementMetaDataset
+from fewshot.data.data_factory import get_dataset
+from fewshot.data.episode import Episode
+from fewshot.data.tiered_imagenet import TieredImageNetDataset
+from fewshot.data.mini_imagenet import MiniImageNetDataset
+from fewshot.data.omniglot import OmniglotDataset
 from fewshot.models.nnlib import cnn, weight_variable
 from fewshot.utils import logger
 from fewshot.utils.batch_iter import BatchIterator
@@ -70,9 +69,9 @@ class LRModel(object):
 
   def __init__(self, x, y, num_classes, dtype=tf.float32, learn_rate=1e-3):
     x_shape = x.get_shape()
-    # x_size = reduce(lambda x, y: x * y, [int(ss) for ss in x_shape[1:]])
-    x_size = reduce(lambda x, y: x * y, [int(ss) for ss in x_shape[1:]])
-    # log.fatal(x_size)
+    x_size = 1
+    for ss in x_shape[1:]:
+      x_size *= int(ss)
     x = tf.reshape(x, [-1, x_size])
     w_class = weight_variable(
         [x_size, num_classes],
@@ -171,7 +170,9 @@ class SupervisedModel(object):
         is_training=is_training,
         ext_wts=None)
     h_shape = h.get_shape()
-    h_size = reduce(lambda x, y: x * y, [int(ss) for ss in h_shape[1:]])
+    h_size = 1
+    for ss in h_shape[1:]:
+      h_size *= int(ss)
     h = tf.reshape(h, [-1, h_size])
     w_class = weight_variable(
         [h_size, num_classes],
@@ -282,13 +283,11 @@ def supervised_pretrain(sess,
   embedding model for baselines.
 
   Args:
-    sess:
-    model:
-    train_data:
-    test_data:
-    num_steps:
-
-  Returns:
+    sess: TensorFlow session object.
+    model: SupervisedModel object.
+    train_data: Training dataset object.
+    test_data: Testing dataset object.
+    num_steps: Int. Number of training steps.
   """
   train_iter = BatchIterator(
       train_data.get_size(),
@@ -375,7 +374,7 @@ def preprocess_batch(batch):
     else:
       y_unlabel = None
 
-    return OmniglotEpisode(
+    return Episode(
         x_train,
         y_train,
         x_test,
@@ -546,28 +545,26 @@ def run_lr(sess,
 def main():
   # ------------------------------------------------------------------------
   # Flags.
-  _dataset = "omniglot" if "omniglot" in FLAGS.dataset else ""
-  _dataset = "jake_imagenet" if "jake_imagenet" in FLAGS.dataset else _dataset
-  dataset = "mini_imagenet" if "mini_imagenet" in FLAGS.dataset else _dataset
-  if 'mini_imagenet' in FLAGS.dataset or 'jake_imagenet' in FLAGS.dataset:
-    _aug_90 = False
-    input_shape = [84, 84, 3]
-    feature_shape = [1600]
-  elif 'omniglot' in FLAGS.dataset:
-    _aug_90 = FLAGS.aug
-    input_shape = [28, 28, 1]
-    feature_shape = [64]
-  else:
-    raise ValueError('Unknown dataset')
-  if FLAGS.num_test == -1 and _dataset == "jake_imagenet":
-    num_test = 20
-  elif FLAGS.num_test == -1 and _dataset == "mini_imagenet":
-    num_test = 20
+  if FLAGS.num_test == -1 and (FLAGS.dataset == "tiered-imagenet" or
+                               FLAGS.dataset == 'mini-imagenet'):
+    num_test = 5
   else:
     num_test = FLAGS.num_test
   nclasses_train = FLAGS.nclasses_train
   nclasses_eval = FLAGS.nclasses_eval
+
+  # Whether doing 90 degree augmentation.
+  if 'mini-imagenet' in FLAGS.dataset or 'tiered-imagenet' in FLAGS.dataset:
+    _aug_90 = False
+    input_shape = [84, 84, 3]
+    feature_shape = [1600]
+  else:
+    _aug_90 = True
+    input_shape = [28, 28, 1]
+    feature_shape = [64]
+
   nshot = FLAGS.nshot
+  dataset = FLAGS.dataset
 
   meta_train_dataset = get_dataset(
       FLAGS.dataset,
@@ -620,10 +617,10 @@ def main():
     exp_logger = get_exp_logger(sess, log_folder)
 
     def _logging_fn(niter, data):
-      log.info(
-          'Step {} Train Cost {:.3e} Train Acc {:.3f} Test Cost {:.3e} Test Acc {:.3f}'.
-          format(niter, data['train_cost'], data['train_acc'] * 100.0, data[
-              'test_cost'], data['test_acc'] * 100.0))
+      # log.info(
+      #     'Step {} Train Cost {:.3e} Train Acc {:.3f} Test Cost {:.3e} Test Acc {:.3f}'.
+      #     format(niter, data['train_cost'], data['train_acc'] * 100.0, data[
+      #         'test_cost'], data['test_acc'] * 100.0))
       for key in data:
         exp_logger.log(key, niter, data[key])
       exp_logger.flush()
@@ -753,5 +750,5 @@ if __name__ == '__main__':
   flags.DEFINE_integer("num_test", -1, "Number of test images per episode")
   flags.DEFINE_integer("num_unlabel", 5, "Number of unlabeled for training")
   flags.DEFINE_integer("seed", 0, "Random seed")
-  flags.DEFINE_string("dataset", "omniglot_refinement", "Dataset name")
+  flags.DEFINE_string("dataset", "omniglot", "Dataset name")
   main()

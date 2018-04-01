@@ -137,9 +137,14 @@ class MiniImageNetDataset(object):
     cache_path = self.get_cache_path(split)
     if os.path.exists(cache_path):
       with open(cache_path, "rb") as f:
-        data = pkl.load(f)
-        self.img_data = data['image_data']
-        self.class_dict = data['class_dict']
+        try:
+          data = pkl.load(f, encoding='bytes')
+          self.img_data = data[b'image_data']
+          self.class_dict = data[b'class_dict']
+        except:
+          data = pkl.load(f)
+          self.img_data = data['image_data']
+          self.class_dict = data['class_dict']
       return True
     else:
       return False
@@ -190,16 +195,16 @@ class MiniImageNetDataset(object):
     total_test = None
     total_unlbl = None
     for idx, cl in enumerate(sel_classes[:self.al_instance.n_class]):
-      train, test, unlbl = self._get_rand_partition(self.class_dict.keys()[cl],
-                                                    idx, k_per_class[idx])
+      train, test, unlbl = self._get_rand_partition(
+          list(self.class_dict.keys())[cl], idx, k_per_class[idx])
       total_train = self._concat_or_identity(total_train, train)
       total_test = self._concat_or_identity(total_test, test)
       total_unlbl = self._concat_or_identity(total_unlbl, unlbl)
 
     for idx, cl in enumerate(sel_classes[self.al_instance.n_class:]):
-      unlbl = self._get_rand_partition(self.class_dict.keys()[cl],
-                                       self.al_instance.n_class + idx,
-                                       k_per_class[idx])
+      unlbl = self._get_rand_partition(
+          list(self.class_dict.keys())[cl], self.al_instance.n_class + idx,
+          k_per_class[idx])
       total_unlbl = self._concat_or_identity(total_unlbl, unlbl)
 
     assert self._check_shape(total_train, self.al_instance.n_class,
@@ -232,7 +237,7 @@ class MiniImageNetDataset(object):
     """ convert dict: class_name -> {'lbl': [name of labeled class images], 'unlbl' : [name of unlabeled images]'} """
     new_class_dict = {}
     print('Seed!', self._seed)
-    for class_name, image_list in class_dict.iteritems():
+    for class_name, image_list in class_dict.items():
       np.random.RandomState(self._seed).shuffle(image_list)
       new_class_dict[class_name] = {
           'lbl': image_list[0:self.n_lbl],
@@ -245,7 +250,7 @@ class MiniImageNetDataset(object):
     splitfile = os.path.join(self._folder, "mini-imagenet-labelsplit-" +
                              self._split + "-{}.pkl".format(self._seed))
     new_class_dict = {}
-    for class_name, image_list in class_dict.iteritems():
+    for class_name, image_list in class_dict.items():
       np.random.RandomState(self._seed).shuffle(image_list)
       new_class_dict[class_name] = {
           'lbl': image_list[0:self.n_lbl],
