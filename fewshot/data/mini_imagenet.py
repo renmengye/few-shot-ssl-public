@@ -136,12 +136,13 @@ class MiniImageNetDataset(object):
   def _read_cache(self, split):
     cache_path = self.get_cache_path(split)
     if os.path.exists(cache_path):
-      with open(cache_path, "rb") as f:
-        try:
+      try:
+        with open(cache_path, "rb") as f:
           data = pkl.load(f, encoding='bytes')
           self.img_data = data[b'image_data']
           self.class_dict = data[b'class_dict']
-        except:
+      except:
+        with open(cache_path, "rb") as f:
           data = pkl.load(f)
           self.img_data = data['image_data']
           self.class_dict = data['class_dict']
