@@ -245,8 +245,10 @@ class MiniImageNetDataset(object):
     return new_class_dict
 
   def split_label_unlabel(self, class_dict):
-    splitfile = os.path.join(self._folder, "mini-imagenet-labelsplit-" +
-                             self._split + "-{}.pkl".format(self._seed))
+    splitfile = os.path.join(
+        self._folder,
+        "mini-imagenet-labelsplit-" + self._split + "-{:d}-{:d}.pkl".format(
+            int(self._label_ratio * 100), self._seed))
     new_class_dict = {}
     for class_name, image_list in class_dict.items():
       np.random.RandomState(self._seed).shuffle(image_list)
