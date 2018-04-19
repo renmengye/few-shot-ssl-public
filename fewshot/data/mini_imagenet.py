@@ -50,8 +50,8 @@ N_INPUT = 84
 IMAGES_PATH = "images/"
 CSV_FILES = {
     'train': 'fewshot/data/mini_imagenet_split/Ravi/train.csv',
-    'val': 'fewshot/data/mini_imagenet_split/Ravi/test.csv',
-    'test': 'fewshot/data/mini_imagenet_split/Ravi/val.csv'
+    'val': 'fewshot/data/mini_imagenet_split/Ravi/val.csv',
+    'test': 'fewshot/data/mini_imagenet_split/Ravi/test.csv'
 }
 
 # Fixed random seed to get same split of labeled vs unlabeled items for each class
@@ -164,10 +164,14 @@ class MiniImageNetDataset(object):
             class_dict[class_name].append(i)
           else:
             class_dict[class_name] = [i]
+          # img_data.append(
+          #     imresize(
+          #         imread(self.images_path + image_filename),
+          #         (self.n_input, self.n_input, 3)))
           img_data.append(
-              imresize(
-                  imread(self.images_path + image_filename),
-                  (self.n_input, self.n_input, 3)))
+              cv2.resize(
+                  cv2.imread(self.images_path + image_filename)
+                  [:, :, [2, 1, 0]], (self.n_input, self.n_input)))
           i += 1
 
     self.img_data = np.stack(img_data)
@@ -177,7 +181,7 @@ class MiniImageNetDataset(object):
     with open(cache_path, "wb") as f:
       pkl.dump(data, f, protocol=pkl.HIGHEST_PROTOCOL)
 
-  def next_episode(self, within_category=False, catcode=None):
+  def next(self, within_category=False, catcode=None):
     """
       (1) Pick random set of classes
       (2) Pick random partitioning into train, test, unlabeled
@@ -248,8 +252,9 @@ class MiniImageNetDataset(object):
     return new_class_dict
 
   def split_label_unlabel(self, class_dict):
-    splitfile = os.path.join(self._folder, "mini-imagenet-labelsplit-" +
-                             self._split + "-{}.pkl".format(self._seed))
+    splitfile = os.path.join(
+        self._folder, "mini-imagenet-labelsplit-" + self._split +
+        "-{:d}-{:d}.pkl".format(int(self._label_ratio * 100), self._seed))
     new_class_dict = {}
     for class_name, image_list in class_dict.items():
       np.random.RandomState(self._seed).shuffle(image_list)
@@ -313,15 +318,10 @@ class MiniImageNetDataset(object):
     data = []
     for image_file in image_list:
       data.append(self._read_from_cache(image_file))
-      #data.append(self._read_image(self.images_path + image_file))
     if len(data) == 0:
       return np.zeros([0, 84, 84, 3])
     else:
       return np.stack(data)
-
-  def _read_image(self, image_filename):
-    return imresize(imread(image_filename),
-                    (self.n_input, self.n_input, 3)) / 255.0
 
   def _read_from_cache(self, idx):
     return self.img_data[idx] / 255.0

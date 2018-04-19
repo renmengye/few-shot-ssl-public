@@ -199,8 +199,7 @@ class SupervisedModel(object):
         'global_step', shape=[], dtype=tf.int64, trainable=False)
     # Learning rate decay.
     learn_rate = tf.train.piecewise_constant(
-        global_step,
-        list(np.array(config.lr_decay_steps).astype(np.int64)),
+        global_step, list(np.array(config.lr_decay_steps).astype(np.int64)),
         [config.learn_rate] + list(config.lr_list))
     self._learn_rate = learn_rate
     self._train_op = tf.train.AdamOptimizer(learn_rate).minimize(
@@ -318,8 +317,10 @@ def supervised_pretrain(sess,
     x_train, y_train = train_iter.next()
     sess.run(
         [model.train_op],
-        feed_dict={model.inputs: x_train,
-                   model.labels: y_train})
+        feed_dict={
+            model.inputs: x_train,
+            model.labels: y_train
+        })
     if (ii + 1) % 100 == 0 or ii == 0:
       train_cost = 0.0
       train_acc = 0.0
@@ -327,8 +328,10 @@ def supervised_pretrain(sess,
         x_train, y_train = train_eval_iter.next()
         cost_, acc_ = sess.run(
             [model.cost, model.acc],
-            feed_dict={model.inputs: x_train,
-                       model.labels: y_train})
+            feed_dict={
+                model.inputs: x_train,
+                model.labels: y_train
+            })
         train_cost += cost_ / num_eval_steps
         train_acc += acc_ / num_eval_steps
 
@@ -338,20 +341,23 @@ def supervised_pretrain(sess,
         x_train, y_train = test_iter.next()
         cost_, acc_ = sess.run(
             [model.cost, model.acc],
-            feed_dict={model.inputs: x_train,
-                       model.labels: y_train})
+            feed_dict={
+                model.inputs: x_train,
+                model.labels: y_train
+            })
         test_cost += cost_ / num_eval_steps
         test_acc += acc_ / num_eval_steps
 
       learn_rate = sess.run(model.learn_rate)
       if logging_fn is not None:
-        logging_fn(ii + 1, {
-            'train_cost': train_cost,
-            'train_acc': train_acc,
-            'test_cost': test_cost,
-            'test_acc': test_acc,
-            'learn_rate': learn_rate
-        })
+        logging_fn(
+            ii + 1, {
+                'train_cost': train_cost,
+                'train_acc': train_acc,
+                'test_cost': test_cost,
+                'test_acc': test_acc,
+                'learn_rate': learn_rate
+            })
       it.set_postfix(
           ce='{:.3e}'.format(train_cost),
           train_acc='{:.3f}%'.format(train_acc * 100),
@@ -422,16 +428,20 @@ def run_nn(sess, meta_dataset, num_episodes=600, emb_model=None):
 
   acc_list = []
   for neval in tqdm(six.moves.xrange(num_episodes), ncols=0):
-    dataset = meta_dataset.next_episode()
+    dataset = meta_dataset.next()
     batch = dataset.next_batch()
     batch = preprocess_batch(batch)
     if emb_model is not None:
       x_train = sess.run(
           emb_model.feature,
-          feed_dict={emb_model.inputs: np.squeeze(batch.x_train, axis=0)})
+          feed_dict={
+              emb_model.inputs: np.squeeze(batch.x_train, axis=0)
+          })
       x_test = sess.run(
           emb_model.feature,
-          feed_dict={emb_model.inputs: np.squeeze(batch.x_test, axis=0)})
+          feed_dict={
+              emb_model.inputs: np.squeeze(batch.x_test, axis=0)
+          })
       x_train = np.expand_dims(x_train, axis=0)
       x_test = np.expand_dims(x_test, axis=0)
     else:
@@ -476,10 +486,14 @@ def get_lr_fit(sess, model, x_train, y_train, x_test, num_steps=100):
     for step in six.moves.xrange(num_steps):
       cost, acc, _ = sess.run(
           [model.cost, model.acc, model.train_op],
-          feed_dict={model.inputs: x_train_,
-                     model.labels: y_train_})
+          feed_dict={
+              model.inputs: x_train_,
+              model.labels: y_train_
+          })
     y_pred[ii] = np.argmax(
-        sess.run(model.prediction, feed_dict={model.inputs: x_test_}), axis=-1)
+        sess.run(model.prediction, feed_dict={
+            model.inputs: x_test_
+        }), axis=-1)
   return y_pred
 
 
@@ -512,17 +526,21 @@ def run_lr(sess,
 
   acc_list = []
   for neval in tqdm(six.moves.xrange(num_episodes), ncols=0):
-    dataset = meta_dataset.next_episode()
+    dataset = meta_dataset.next()
     batch = dataset.next_batch()
     batch = preprocess_batch(batch)
 
     if emb_model is not None:
       x_train = sess.run(
           emb_model.feature,
-          feed_dict={emb_model.inputs: np.squeeze(batch.x_train, axis=0)})
+          feed_dict={
+              emb_model.inputs: np.squeeze(batch.x_train, axis=0)
+          })
       x_test = sess.run(
           emb_model.feature,
-          feed_dict={emb_model.inputs: np.squeeze(batch.x_test, axis=0)})
+          feed_dict={
+              emb_model.inputs: np.squeeze(batch.x_test, axis=0)
+          })
       x_train = np.expand_dims(x_train, axis=0)
       x_test = np.expand_dims(x_test, axis=0)
     else:

@@ -79,6 +79,7 @@ from fewshot.configs.config_factory import get_config
 from fewshot.configs.mini_imagenet_config import *
 from fewshot.configs.omniglot_config import *
 from fewshot.configs.tiered_imagenet_config import *
+from fewshot.data.data_factory import get_concurrent_iterator
 from fewshot.data.data_factory import get_dataset
 from fewshot.data.episode import Episode
 from fewshot.data.mini_imagenet import MiniImageNetDataset
@@ -164,16 +165,12 @@ def preprocess_batch(batch):
     return batch
 
 
-def evaluate(sess,
-             model,
-             meta_dataset,
-             num_episodes=FLAGS.num_eval_episode,
-             catcode=None):
+def evaluate(sess, model, meta_dataset, num_episodes=FLAGS.num_eval_episode):
   ncorr = 0
   ntotal = 0
   all_acc = []
   for neval in tqdm(six.moves.xrange(num_episodes), desc="evaluation", ncols=0):
-    dataset = meta_dataset.next_episode(catcode=catcode)
+    dataset = meta_dataset.next()
     batch = dataset.next_batch()
     batch = preprocess_batch(batch)
     feed_dict = {
@@ -199,12 +196,10 @@ def evaluate(sess,
 
 
 def gen_id(config):
-  return "{}_{}-{:03d}".format(
-      config.name,
-      datetime.datetime.now().isoformat(chr(ord("-"))).replace(":",
-                                                               "-").replace(
-                                                                   ".", "-"),
-      int(np.random.rand() * 1000))
+  return "{}_{}-{:03d}".format(config.name,
+                               datetime.datetime.now().isoformat(chr(
+                                   ord("-"))).replace(":", "-").replace(
+                                       ".", "-"), int(np.random.rand() * 1000))
 
 
 def save(sess, saver, niter, save_folder):
@@ -253,7 +248,7 @@ def train(sess,
   lr = lr_scheduler.lr
   for niter in it:
     lr_scheduler.step(niter)
-    dataset = meta_dataset.next_episode()
+    dataset = meta_dataset.next()
     batch = dataset.next_batch()
     batch = preprocess_batch(batch)
 
@@ -341,6 +336,8 @@ def main():
       num_unlabel=FLAGS.num_unlabel,
       shuffle_episode=False,
       seed=FLAGS.seed)
+  meta_train_dataset = get_concurrent_iterator(
+      meta_train_dataset, max_queue_size=100, num_threads=5)
   meta_test_dataset = get_dataset(
       FLAGS.dataset,
       test_split_name,
@@ -352,9 +349,13 @@ def main():
       shuffle_episode=False,
       label_ratio=1,
       seed=FLAGS.seed)
+  meta_test_dataset = get_concurrent_iterator(
+      meta_test_dataset, max_queue_size=100, num_threads=5)
   m, mvalid = _get_model(config, nclasses_train, nclasses_eval)
 
-  with tf.Session() as sess:
+  sconfig = tf.ConfigProto()
+  sconfig.gpu_options.allow_growth = True
+  with tf.Session(config=sconfig) as sess:
     if FLAGS.pretrain is not None:
       ckpt = tf.train.latest_checkpoint(
           os.path.join(FLAGS.results, FLAGS.pretrain))
@@ -367,10 +368,10 @@ def main():
     results_train = evaluate(sess, mvalid, meta_train_dataset)
     results_test = evaluate(sess, mvalid, meta_test_dataset)
 
-    log.info("Final train acc {:.3f}% ({:.3f}%)".format(results_train[
-        'acc'] * 100.0, results_train['acc_ci'] * 100.0))
-    log.info("Final test acc {:.3f}% ({:.3f}%)".format(results_test[
-        'acc'] * 100.0, results_test['acc_ci'] * 100.0))
+    log.info("Final train acc {:.3f}% ({:.3f}%)".format(
+        results_train['acc'] * 100.0, results_train['acc_ci'] * 100.0))
+    log.info("Final test acc {:.3f}% ({:.3f}%)".format(
+        results_test['acc'] * 100.0, results_test['acc_ci'] * 100.0))
 
 
 if __name__ == "__main__":

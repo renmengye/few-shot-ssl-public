@@ -44,6 +44,10 @@ import tensorflow as tf
 
 from collections import namedtuple
 
+flags = tf.flags
+flags.DEFINE_bool("eval_train", False, "Whether to evaluate training set")
+flags.DEFINE_string("num_unlabel_list", None, "Number of unlabel items")
+
 from fewshot.utils import logger
 from run_exp import _get_model
 from run_exp import evaluate
@@ -52,11 +56,18 @@ from run_exp import get_dataset
 from run_exp import train
 
 FLAGS = tf.flags.FLAGS
+
 if 'imagenet' in FLAGS.dataset:
-  NUM_UNLABEL_LIST = '0,1,2,5,10,15,20,25'
+  if FLAGS.num_unlabel_list is None:
+    NUM_UNLABEL_LIST = '0,1,2,5,10,15,20,25'
+  else:
+    NUM_UNLABEL_LIST = FLAGS.num_unlabel_list
   NUM_RUN = 10
 else:
-  NUM_UNLABEL_LIST = '0,1,2,5,10'
+  if FLAGS.num_unlabel_list is None:
+    NUM_UNLABEL_LIST = '0,1,2,5,10'
+  else:
+    NUM_UNLABEL_LIST = FLAGS.num_unlabel_list
   NUM_RUN = 10
 log = logger.get()
 
@@ -115,26 +126,17 @@ def run_one(dataset, model, seed, pretrain_id, exp_id):
       label_ratio=1,
       seed=seed)
 
-  with tf.Session() as sess:
+  sconfig = tf.ConfigProto()
+  sconfig.gpu_options.allow_growth = True
+  with tf.Session(config=sconfig) as sess:
     tf.set_random_seed(seed)
     with log.verbose_level(2):
       m, mvalid = _get_model(config, nclasses_train, nclasses_eval)
     if pretrain_id is not None:
-      ckpt = tf.train.latest_checkpoint(os.path.join('results', pretrain_id))
-
-      # To pretrain with Basic model.
-      if FLAGS.bare:
-        sess.run(tf.global_variables_initializer())
-        all_vars = tf.global_variables()
-        all_vars = filter(lambda x: "log_distractor" not in x.name, all_vars)
-        all_vars = filter(lambda x: "mask_scale" not in x.name, all_vars)
-        all_vars = filter(lambda x: "mask_bias" not in x.name, all_vars)
-        all_vars = filter(lambda x: "dist_mlp" not in x.name, all_vars)
-        saver = tf.train.Saver(all_vars)
-        saver.restore(sess, ckpt)
-      else:
-        saver = tf.train.Saver()
-        saver.restore(sess, ckpt)
+      ckpt = tf.train.latest_checkpoint(
+          os.path.join(FLAGS.results, pretrain_id))
+      saver = tf.train.Saver()
+      saver.restore(sess, ckpt)
     else:
       sess.run(tf.global_variables_initializer())
 
@@ -153,13 +155,15 @@ def run_one(dataset, model, seed, pretrain_id, exp_id):
     else:
       exp_id_ = None
 
-    train_results = evaluate(sess, mvalid, meta_train_dataset)
-
-    log.info("Final train acc {:.3f}% ({:.3f}%)".format(train_results[
-        'acc'] * 100.0, train_results['acc_ci'] * 100.0))
+    if FLAGS.eval_train:
+      train_results = evaluate(sess, mvalid, meta_train_dataset)
+      log.info("Final train acc {:.3f}% ({:.3f}%)".format(
+          train_results['acc'] * 100.0, train_results['acc_ci'] * 100.0))
+    else:
+      train_results = None
 
     num_unlabel_list = [int(nn) for nn in NUM_UNLABEL_LIST.split(',')]
-    val_results_list = []
+    test_results_list = []
     for nn in num_unlabel_list:
 
       if dataset == 'mini-imagenet':
@@ -176,12 +180,12 @@ def run_one(dataset, model, seed, pretrain_id, exp_id):
         meta_test_dataset._num_unlabel = nn
 
       meta_test_dataset.reset()
-      _val_results = evaluate(sess, mvalid, meta_test_dataset)
-      val_results_list.append(_val_results)
+      _test_results = evaluate(sess, mvalid, meta_test_dataset)
+      test_results_list.append(_test_results)
       log.info("Final test acc {:.3f}% ({:.3f}%)".format(
-          _val_results['acc'] * 100.0, _val_results['acc_ci'] * 100.0))
+          _test_results['acc'] * 100.0, _test_results['acc_ci'] * 100.0))
 
-  return train_results, val_results_list, exp_id_, num_unlabel_list
+  return train_results, test_results_list, exp_id_, num_unlabel_list
 
 
 def calc_avg(number):
@@ -191,8 +195,7 @@ def calc_avg(number):
 
 def collect(results):
   acc = [rr['acc'] for rr in results]
-  ap = [rr['distractor_ap'] for rr in results]
-  return calc_avg(acc), calc_avg(ap)
+  return calc_avg(acc)
 
 
 def main():
@@ -210,7 +213,7 @@ def main():
     num_runs = NUM_RUN
 
   all_train_results = []
-  all_val_results = []
+  all_test_results = []
   exp_ids = []
   seed_list = []
   config = get_config(FLAGS.dataset, FLAGS.model)
@@ -220,26 +223,25 @@ def main():
     log.info("Run {} out of {}".format(ii + 1, NUM_RUN))
     with tf.Graph().as_default():
       _seed = 1001 * ii
-      train_results, val_results_list, exp_id, num_unlabel_list = run_one(
+      train_results, test_results_list, exp_id, num_unlabel_list = run_one(
           FLAGS.dataset, FLAGS.model, _seed, pid, exp_id_root)
       all_train_results.append(train_results)
-      all_val_results.append(val_results_list)
+      all_test_results.append(test_results_list)
       exp_ids.append(exp_id)
       seed_list.append(_seed)
-  tacc, tap = collect(all_train_results)
-  log.info(
-      'Train Acc = {:.3f} ({:.3f})'.format(tacc[0] * 100.0, tacc[1] * 100.0))
-  log.info('Train AP = {:.3f} ({:.3f})'.format(tap[0] * 100.0, tap[1] * 100.0))
+
+  if FLAGS.eval_train:
+    trn_acc = collect(all_train_results)
+    log.info('Train Acc = {:.3f} ({:.3f})'.format(trn_acc[0] * 100.0,
+                                                  trn_acc[1] * 100.0))
   for ii in range(len(num_unlabel_list)):
-    _all_val_results = []
-    for vr in all_val_results:
-      _all_val_results.append(vr[ii])
-    _vacc, _vap = collect(_all_val_results)
+    _all_test_results = []
+    for vr in all_test_results:
+      _all_test_results.append(vr[ii])
+    _test_acc = collect(_all_test_results)
     log.info('Num Unlabel {}'.format(num_unlabel_list[ii]))
-    log.info(
-        'Val Acc = {:.3f} ({:.3f})'.format(_vacc[0] * 100.0, _vacc[1] * 100.0))
-    log.info(
-        'Val AP = {:.3f} ({:.3f})'.format(_vap[0] * 100.0, _vap[1] * 100.0))
+    log.info('Test Acc = {:.3f} ({:.3f})'.format(_test_acc[0] * 100.0,
+                                                 _test_acc[1] * 100.0))
   log.info('Experiment ID:')
   for ee, seed in zip(exp_ids, seed_list):
     print(ee, seed)

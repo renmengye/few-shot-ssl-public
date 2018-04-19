@@ -42,7 +42,7 @@ FLAGS = tf.flags.FLAGS
 
 class MetaDataset(object):
 
-  def next_episode(self):
+  def next(self):
     """Get a new episode training."""
     pass
 
@@ -85,9 +85,9 @@ class RefinementMetaDataset(object):
     # Build a set for quick query.
     self._label_split_idx = np.array(self._label_split_idx)
     self._label_split_idx_set = set(list(self._label_split_idx))
-    self._unlabel_split_idx = list(filter(
-        lambda _idx: _idx not in self._label_split_idx_set,
-        range(self._labels.shape[0])))
+    self._unlabel_split_idx = list(
+        filter(lambda _idx: _idx not in self._label_split_idx_set,
+               range(self._labels.shape[0])))
     self._unlabel_split_idx = np.array(self._unlabel_split_idx)
     if len(self._unlabel_split_idx) > 0:
       self._unlabel_split_idx_set = set(self._unlabel_split_idx)
@@ -128,7 +128,7 @@ class RefinementMetaDataset(object):
     log.info("Total image {}".format(num_ex))
     return sorted(labeled_split)
 
-  def next_episode(self, within_category=False, catcode=None):
+  def next(self, within_category=False, catcode=None):
     """Gets a new episode.
     within_category: bool. Whether or not to choose the N classes
     to all belong to the same more general category.

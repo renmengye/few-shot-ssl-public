@@ -22,6 +22,8 @@
 import os
 import tensorflow as tf
 
+from fewshot.data.concurrent_batch_iter import ConcurrentBatchIterator
+
 flags = tf.flags
 flags.DEFINE_string("data_root", "data", "Data root")
 FLAGS = tf.flags.FLAGS
@@ -50,3 +52,11 @@ def get_dataset(dataset_name, split, *args, **kwargs):
                                           *args, **kwargs)
   else:
     raise ValueError("Unknown dataset \"{}\"".format(dataset_name))
+
+
+def get_concurrent_iterator(dataset, max_queue_size=100, num_threads=10):
+  return ConcurrentBatchIterator(
+      dataset,
+      max_queue_size=max_queue_size,
+      num_threads=num_threads,
+      log_queue=-1)
