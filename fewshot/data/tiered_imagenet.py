@@ -86,19 +86,16 @@ class TieredImageNetDataset(RefinementMetaDataset):
     self._folder = folder
     self._data_folder = folder
     self._imagenet_train_folder = os.path.join(self._data_folder, "train")
+    self._split = split
     self._splits_folder = self.get_splits_folder()
     print("num unlabel {}".format(num_unlabel))
     print("num test {}".format(num_test))
     print("num distractor {}".format(num_distractor
-                                     if not FLAGS.disable_distractor else 0))
+                                     if not FLAGS.disable_distractor else 0)) 
+
     super(TieredImageNetDataset,
           self).__init__(split, nway, nshot, num_unlabel, num_distractor,
-                         num_test, label_ratio, shuffle_episode, seed)
-
-    # Dictionary mapping categories to their synsets
-    self._catcode_to_syncode = self.build_catcode_to_syncode()
-    self._catcode_to_str = self.build_catcode_to_str()
-    self._syncode_to_str = self.build_syncode_to_str()
+                         num_test, label_ratio, shuffle_episode, seed)  
 
     # Inverse dictionaries.
     num_ex = self._label_specific.shape[0]
@@ -175,7 +172,7 @@ class TieredImageNetDataset(RefinementMetaDataset):
   def save_cache(self):
     """Saves pkl cache."""
 
-    cache_path_labels, cache_path_images = self.get_cache_path(self._seed)
+    cache_path_labels, cache_path_images = self.get_cache_path()
     data = {
         "label_specific": self._label_specific,
         "label_general": self._label_general,
@@ -222,7 +219,7 @@ class TieredImageNetDataset(RefinementMetaDataset):
     specific_label, general_label = [], []
     csv_path = os.path.join(self._splits_folder, self._split + '.csv')
     with open(csv_path, 'r') as csvfile:
-      csvreader = csv.reader(csvfile, delimiter=',', quotechar='|')
+      csvreader = csv.reader(csvfile, delimiter=str(','), quotechar=str('|'))
       for i, row in enumerate(csvreader):
         # Sometimes there's an empty row at the bottom
         if len(row) == 0:
@@ -240,13 +237,20 @@ class TieredImageNetDataset(RefinementMetaDataset):
 
   def read_dataset(self):
     if not self.read_cache():
+
+      # Dictionary mapping categories to their synsets
+      self._catcode_to_syncode = self.build_catcode_to_syncode()
+      self._catcode_to_str = self.build_catcode_to_str()
+      self._syncode_to_str = self.build_syncode_to_str()
+
       specific_classes, general_classes = self.read_splits()
       label_idx_specific = []
       label_idx_general = []
       label_str_specific = []
-      label_str_general = []
+      label_str_general = {}  # Maps numerical general id's to strings.
       data = []
       synset_dirs = os.listdir(self._imagenet_train_folder)
+      catcode_to_syncode_keys = self._catcode_to_syncode.keys()
       for synset in tqdm(synset_dirs, desc="Reading dataset..."):
         if not synset in specific_classes:
           continue
@@ -255,6 +259,7 @@ class TieredImageNetDataset(RefinementMetaDataset):
             break
         synset_dir_path = os.path.join(self._imagenet_train_folder, synset)
         img_list = os.listdir(synset_dir_path)
+        numerical_general_label = catcode_to_syncode_keys.index(cat)
         for img_fname in img_list:
           fpath = os.path.join(synset_dir_path, img_fname)
           if FLAGS.load_images:
@@ -265,13 +270,13 @@ class TieredImageNetDataset(RefinementMetaDataset):
           else:
             data_paths.append(fpath)
           label_idx_specific.append(len(label_str_specific))
-          label_idx_general.append(len(label_str_general))
+          label_idx_general.append(numerical_general_label)
 
         synset_name = self._syncode_to_str[synset]
         category_name = self._catcode_to_str[cat]
         label_str_specific.append(synset_name)
         if category_name not in label_str_general:
-          label_str_general.append(category_name)
+          label_str_general[numerical_general_label] = category_name
       print("Number of synsets {}".format(len(label_str_specific)))
       print("label_str_general {}".format(label_str_general))
       print("len label_str_general {}".format(len(label_str_general)))
@@ -283,6 +288,8 @@ class TieredImageNetDataset(RefinementMetaDataset):
       self._label_general = labels_general
       self._label_specific_str = label_str_specific
       self._label_general_str = label_str_general
+      self._labels = self._label_specific
+      self._label_str = self._label_specific_str
       self.read_label_split()
       self.save_cache()
 
@@ -291,7 +298,7 @@ class TieredImageNetDataset(RefinementMetaDataset):
     csv_path = os.path.join(self._splits_folder, self._split + '.csv')
     print(csv_path)
     with open(csv_path, 'r') as csvfile:
-      csvreader = csv.reader(csvfile, delimiter=',', quotechar='|')
+      csvreader = csv.reader(csvfile, delimiter=str(','), quotechar=str('|'))
       for i, row in enumerate(csvreader):
         # Sometimes there's an empty row at the bottom
         if len(row) == 0:
