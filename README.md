@@ -33,6 +33,11 @@ rm -f omniglot.tar.gz
 
 ### miniImageNet
 [[Google Drive](https://drive.google.com/open?id=16V_ZlkW4SsnNDtnGmaBRq2OoPmUOc5mY)]  (1.1 GB)
+
+Update: Python 2 and 3 compatible version:
+[[train](https://drive.google.com/file/d/1I3itTXpXxGV68olxM5roceUMG8itH9Xj)]
+[[val](https://drive.google.com/file/d/1KY5e491bkLFqJDp0-UWou3463Mo8AOco)]
+[[test](https://drive.google.com/file/d/1wpmY-hmiJUUlRBkO9ZDCXAcIpHEFdOhD)]
 ```
 # Download and place "mini-imagenet.tar.gz" in "$DATA_ROOT/mini-imagenet".
 mkdir -p $DATA_ROOT/mini-imagenet
